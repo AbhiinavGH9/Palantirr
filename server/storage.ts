@@ -1,38 +1,89 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import {
+  conflicts,
+  conflictSources,
+  type InsertConflict,
+  type InsertConflictSource,
+  type ConflictWithSources,
+  type GlobalSummary,
+  type Conflict
+} from "@shared/schema";
+import { eq, desc, ilike, sql } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getConflicts(): Promise<ConflictWithSources[]>;
+  getConflict(id: number): Promise<ConflictWithSources | undefined>;
+  getConflictsByCountry(countryName: string): Promise<ConflictWithSources[]>;
+  getGlobalSummary(): Promise<GlobalSummary>;
+  createConflict(conflict: InsertConflict): Promise<Conflict>;
+  createConflictSource(source: InsertConflictSource): Promise<void>;
+  clearConflicts(): Promise<void>; // Useful for daily updates if we just truncate and rebuild, or we can use upserts
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async getConflicts(): Promise<ConflictWithSources[]> {
+    const allConflicts = await db.query.conflicts.findMany({
+      with: {
+        sources: true,
+      },
+      orderBy: [desc(conflicts.intensityScore)],
+    });
+    return allConflicts;
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getConflict(id: number): Promise<ConflictWithSources | undefined> {
+    return await db.query.conflicts.findFirst({
+      where: eq(conflicts.id, id),
+      with: {
+        sources: true,
+      },
+    });
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+  async getConflictsByCountry(countryName: string): Promise<ConflictWithSources[]> {
+    // Basic array search in jsonb, not perfect but sufficient for simple arrays
+    const allConflicts = await this.getConflicts();
+    return allConflicts.filter(c => 
+      c.countries.some(country => country.toLowerCase() === countryName.toLowerCase())
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getGlobalSummary(): Promise<GlobalSummary> {
+    const allConflicts = await this.getConflicts();
+    
+    const activeConflictsCount = allConflicts.length;
+    const totalEstimatedCasualties = allConflicts.reduce((sum, c) => sum + (c.estimatedDeaths || 0), 0);
+    
+    let mostIntenseConflict: ConflictWithSources | null = null;
+    if (allConflicts.length > 0) {
+      mostIntenseConflict = allConflicts.reduce((prev, current) => 
+        (prev.intensityScore > current.intensityScore) ? prev : current
+      );
+    }
+
+    const lastUpdated = allConflicts.length > 0 ? allConflicts[0].lastUpdated.toISOString() : null;
+
+    return {
+      activeConflictsCount,
+      totalEstimatedCasualties,
+      mostIntenseConflict,
+      lastUpdated,
+    };
+  }
+
+  async createConflict(conflict: InsertConflict): Promise<Conflict> {
+    const [newConflict] = await db.insert(conflicts).values(conflict).returning();
+    return newConflict;
+  }
+
+  async createConflictSource(source: InsertConflictSource): Promise<void> {
+    await db.insert(conflictSources).values(source);
+  }
+
+  async clearConflicts(): Promise<void> {
+    await db.delete(conflictSources);
+    await db.delete(conflicts);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
