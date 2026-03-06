@@ -17,6 +17,8 @@ export interface IStorage {
   getGlobalSummary(): Promise<GlobalSummary>;
   createConflict(conflict: InsertConflict): Promise<Conflict>;
   createConflictSource(source: InsertConflictSource): Promise<void>;
+  updateConflict(id: number, data: Partial<InsertConflict>): Promise<Conflict>;
+  deleteConflict(id: number): Promise<void>;
   clearConflicts(): Promise<void>; // Useful for daily updates if we just truncate and rebuild, or we can use upserts
 }
 
@@ -43,20 +45,20 @@ export class DatabaseStorage implements IStorage {
   async getConflictsByCountry(countryName: string): Promise<ConflictWithSources[]> {
     // Basic array search in jsonb, not perfect but sufficient for simple arrays
     const allConflicts = await this.getConflicts();
-    return allConflicts.filter(c => 
+    return allConflicts.filter(c =>
       c.countries.some(country => country.toLowerCase() === countryName.toLowerCase())
     );
   }
 
   async getGlobalSummary(): Promise<GlobalSummary> {
     const allConflicts = await this.getConflicts();
-    
+
     const activeConflictsCount = allConflicts.length;
     const totalEstimatedCasualties = allConflicts.reduce((sum, c) => sum + (c.estimatedDeaths || 0), 0);
-    
+
     let mostIntenseConflict: ConflictWithSources | null = null;
     if (allConflicts.length > 0) {
-      mostIntenseConflict = allConflicts.reduce((prev, current) => 
+      mostIntenseConflict = allConflicts.reduce((prev, current) =>
         (prev.intensityScore > current.intensityScore) ? prev : current
       );
     }
@@ -78,6 +80,19 @@ export class DatabaseStorage implements IStorage {
 
   async createConflictSource(source: InsertConflictSource): Promise<void> {
     await db.insert(conflictSources).values(source);
+  }
+
+  async updateConflict(id: number, data: Partial<InsertConflict>): Promise<Conflict> {
+    const [updated] = await db.update(conflicts)
+      .set({ ...data, lastUpdated: new Date() })
+      .where(eq(conflicts.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteConflict(id: number): Promise<void> {
+    await db.delete(conflictSources).where(eq(conflictSources.conflictId, id));
+    await db.delete(conflicts).where(eq(conflicts.id, id));
   }
 
   async clearConflicts(): Promise<void> {

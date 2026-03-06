@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useConflicts } from "@/hooks/use-conflicts";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 export default function Admin() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [passwordInput, setPasswordInput] = useState("");
@@ -12,13 +14,57 @@ export default function Admin() {
     const [isProcessing, setIsProcessing] = useState(false);
     const { toast } = useToast();
     const { data: conflicts } = useConflicts();
+    const queryClient = useQueryClient();
 
-    const handleMockAction = (action: string, conflictName: string) => {
-        toast({
-            title: `ACTION REJECTED: ${action.toUpperCase()}`,
-            description: `Cannot ${action} core matrix data for '${conflictName}' in Overseer Showcase Mode.`,
-            variant: "destructive"
-        });
+    const deleteMutation = useMutation({
+        mutationFn: async (id: number) => {
+            const res = await fetch(`/api/admin/conflicts/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error("Failed to delete conflict");
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['/api/conflicts'] });
+            toast({ title: "MATRIX PURGED", description: "Data successfully formatted.", variant: "default" });
+        },
+        onError: (err: any) => {
+            toast({ title: "PURGE FAILED", description: err.message, variant: "destructive" });
+        }
+    });
+
+    const editMutation = useMutation({
+        mutationFn: async ({ id, intensityScore }: { id: number, intensityScore: number }) => {
+            const res = await fetch(`/api/admin/conflicts/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ intensityScore })
+            });
+            if (!res.ok) throw new Error("Failed to update intensity");
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['/api/conflicts'] });
+            toast({ title: "MATRIX OVERRIDDEN", description: "Intensity score updated.", variant: "default" });
+        },
+        onError: (err: any) => {
+            toast({ title: "OVERRIDE FAILED", description: err.message, variant: "destructive" });
+        }
+    });
+
+    const handleDelete = (id: number, name: string) => {
+        if (confirm(`Are you sure you want to completely purge '${name}' from Palantir Matrix?`)) {
+            deleteMutation.mutate(id);
+        }
+    };
+
+    const handleEdit = (id: number, currentIntensity: number) => {
+        const newScore = prompt(`Enter new intensity score (0-100) for conflict ID ${id}:`, currentIntensity.toString());
+        if (newScore !== null) {
+            const parsed = parseInt(newScore);
+            if (!isNaN(parsed) && parsed >= 0 && parsed <= 100) {
+                editMutation.mutate({ id, intensityScore: parsed });
+            } else {
+                toast({ title: "INVALID INPUT", description: "Intensity must be an integer between 0 and 100.", variant: "destructive" });
+            }
+        }
     };
 
     if (!isAuthenticated) {
@@ -73,15 +119,35 @@ export default function Admin() {
         }
 
         setIsProcessing(true);
-        setTimeout(() => {
+        try {
+            const res = await fetch("/api/admin/parse", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: inputText }),
+            });
+
+            if (!res.ok) throw new Error("API parsing failure.");
+
+            const data = await res.json();
+
+            // Invalidate the cache to instantly show it in the table below
+            queryClient.invalidateQueries({ queryKey: ['/api/conflicts'] });
+
             toast({
-                title: "INTELLIGENCE LOGGED",
-                description: `Manual data received. Forwarding to Overseer for manual database injection.`,
+                title: "INTELLIGENCE EXTRACTED",
+                description: `Successfully assimilated matrix data for: ${data.name}.`,
                 variant: "default"
             });
             setInputText("");
+        } catch (err: any) {
+            toast({
+                title: "SYSTEM PARSE ERROR",
+                description: err.message,
+                variant: "destructive"
+            });
+        } finally {
             setIsProcessing(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -182,7 +248,8 @@ export default function Admin() {
                                             variant="outline"
                                             size="sm"
                                             className="h-8 bg-black/50 border-primary/30 text-primary hover:bg-primary/20"
-                                            onClick={() => handleMockAction('edit', conflict.name)}
+                                            onClick={() => handleEdit(conflict.id, conflict.intensityScore)}
+                                            disabled={editMutation.isPending}
                                         >
                                             <Edit className="w-3 h-3 mr-2" /> Edit
                                         </Button>
@@ -190,7 +257,8 @@ export default function Admin() {
                                             variant="outline"
                                             size="sm"
                                             className="h-8 bg-black/50 border-destructive/30 text-destructive hover:bg-destructive/20 hover:text-red-400"
-                                            onClick={() => handleMockAction('delete', conflict.name)}
+                                            onClick={() => handleDelete(conflict.id, conflict.name)}
+                                            disabled={deleteMutation.isPending}
                                         >
                                             <Trash2 className="w-3 h-3 mr-2" /> Format
                                         </Button>

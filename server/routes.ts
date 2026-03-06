@@ -145,6 +145,33 @@ export async function registerRoutes(
     }
   });
 
+  // -------------- ADMIN MANAGEMENT ENDPOINTS -----------
+  app.delete("/api/admin/conflicts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+
+      await storage.deleteConflict(id);
+      res.status(200).json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to delete conflict" });
+    }
+  });
+
+  app.patch("/api/admin/conflicts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+
+      const updated = await storage.updateConflict(id, req.body);
+      res.status(200).json(updated);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to update conflict" });
+    }
+  });
+
   // Seed data function to be called at startup for testing purposes
   await seedDatabase();
 
