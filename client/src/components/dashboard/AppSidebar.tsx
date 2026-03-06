@@ -30,12 +30,13 @@ export function AppSidebar({ onSelectConflict }: AppSidebarProps) {
     <Sidebar className="border-r border-border bg-card/95 backdrop-blur">
       <SidebarHeader className="border-b border-border p-4">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-sm overflow-hidden border border-primary/50 flex items-center justify-center bg-black/50">
-            <img src="/favicon.png" alt="Palantir" className="w-full h-full object-cover" />
+          <div className="h-9 w-9 flex items-center justify-center relative">
+            <div className="absolute inset-0 bg-primary/20 blur-md rounded-full"></div>
+            <img src="/favicon.png" alt="Palantir" className="w-full h-full object-contain relative z-10" />
           </div>
           <div>
             <h1 className="text-xl font-display font-bold text-primary text-shadow-neon tracking-widest leading-none">
-              PALANTIR
+              Palantir
             </h1>
             <p className="text-[10px] text-primary/70 font-mono tracking-widest uppercase">Global Threat Matrix</p>
           </div>

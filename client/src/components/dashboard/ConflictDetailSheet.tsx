@@ -39,9 +39,9 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
             <Skeleton className="h-64 w-full bg-secondary" />
           </div>
         ) : (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col min-h-full pb-6">
             {/* Tactical Header */}
-            <div className="p-6 border-b border-border bg-background/50 relative overflow-hidden">
+            <div className="p-4 sm:p-6 border-b border-border bg-background/50 relative overflow-hidden shrink-0">
               <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
               <SheetHeader>
                 <div className="flex items-center gap-3 mb-4">
@@ -82,12 +82,12 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
             </div>
 
             {/* Content Tabs */}
-            <div className="p-6 flex-1">
+            <div className="p-4 sm:p-6 flex-1 shrink-0">
               <Tabs defaultValue="intel" className="w-full h-full flex flex-col">
-                <TabsList className="grid w-full grid-cols-3 bg-background border border-border rounded-sm h-10 mb-6">
-                  <TabsTrigger value="intel" className="font-mono text-xs uppercase data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-none">Intel</TabsTrigger>
-                  <TabsTrigger value="casualties" className="font-mono text-xs uppercase data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-none">Casualties</TabsTrigger>
-                  <TabsTrigger value="sources" className="font-mono text-xs uppercase data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-none">Sources</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 bg-background border border-border rounded-sm h-11 sm:h-10 mb-6 pb-0">
+                  <TabsTrigger value="intel" className="font-mono text-[10px] sm:text-xs uppercase data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-none h-full">Intel</TabsTrigger>
+                  <TabsTrigger value="casualties" className="font-mono text-[10px] sm:text-xs uppercase data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-none h-full">Casualties</TabsTrigger>
+                  <TabsTrigger value="sources" className="font-mono text-[10px] sm:text-xs uppercase data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-none h-full">Sources</TabsTrigger>
                 </TabsList>
 
                 {/* INTEL TAB */}

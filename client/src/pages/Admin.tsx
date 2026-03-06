@@ -43,6 +43,10 @@ export default function Admin() {
                     >
                         AUTHORIZE
                     </Button>
+
+                    <a href="/" className="mt-8 text-xs text-primary/70 hover:text-primary transition-colors hover:underline tracking-widest uppercase flex items-center gap-2">
+                        ← RETURN TO DASHBOARD
+                    </a>
                 </div>
             </div>
         );
