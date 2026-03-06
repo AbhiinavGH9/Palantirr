@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldAlert, TerminalSquare, Database, CheckCircle, BrainCircuit, Activity } from "lucide-react";
+import { ShieldAlert, TerminalSquare, Database, CheckCircle, BrainCircuit, Activity, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useConflicts } from "@/hooks/use-conflicts";
 
 export default function Admin() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -10,6 +11,15 @@ export default function Admin() {
     const [inputText, setInputText] = useState("");
     const [isProcessing, setIsProcessing] = useState(false);
     const { toast } = useToast();
+    const { data: conflicts } = useConflicts();
+
+    const handleMockAction = (action: string, conflictName: string) => {
+        toast({
+            title: `ACTION REJECTED: ${action.toUpperCase()}`,
+            description: `Cannot ${action} core matrix data for '${conflictName}' in Overseer Showcase Mode.`,
+            variant: "destructive"
+        });
+    };
 
     if (!isAuthenticated) {
         return (
@@ -144,6 +154,58 @@ export default function Admin() {
                             <span className="text-primary font-bold">INFO:</span> The parsing engine is configured to identify numerical tokens, named nations, and casualty distributions automatically. Review the data in the main Palantir dashboard immediately after assimilation completes.
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* DATA MANAGEMENT MODULE */}
+            <div className="w-full max-w-4xl mt-6 tactical-border bg-black/40 p-6 flex flex-col">
+                <div className="flex items-center gap-2 text-primary font-bold mb-4 uppercase text-sm tracking-widest border-b border-primary/20 pb-2">
+                    <Database className="w-4 h-4" /> Active Matrix Data Management
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left font-mono text-sm">
+                        <thead className="text-xs text-muted-foreground uppercase border-b border-primary/20 bg-primary/5">
+                            <tr>
+                                <th className="p-3">Conflict Designation</th>
+                                <th className="p-3">Intensity</th>
+                                <th className="p-3 text-right">Overrides</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-primary/10">
+                            {conflicts?.map(conflict => (
+                                <tr key={conflict.id} className="hover:bg-primary/5 transition-colors">
+                                    <td className="p-3 text-primary font-bold">{conflict.name}</td>
+                                    <td className="p-3 text-destructive">{conflict.intensityScore}/100</td>
+                                    <td className="p-3 flex justify-end gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 bg-black/50 border-primary/30 text-primary hover:bg-primary/20"
+                                            onClick={() => handleMockAction('edit', conflict.name)}
+                                        >
+                                            <Edit className="w-3 h-3 mr-2" /> Edit
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 bg-black/50 border-destructive/30 text-destructive hover:bg-destructive/20 hover:text-red-400"
+                                            onClick={() => handleMockAction('delete', conflict.name)}
+                                        >
+                                            <Trash2 className="w-3 h-3 mr-2" /> Format
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                            {!conflicts && (
+                                <tr>
+                                    <td colSpan={3} className="p-6 text-center text-muted-foreground italic">
+                                        [FETCHING MATRIX DATA...]
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
