@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "https://palantir-api-qiar.onrender.com"
+            "destination": "https://palantir-api-nn4m.onrender.com"
         },
         {
             "source": "/(.*)",
