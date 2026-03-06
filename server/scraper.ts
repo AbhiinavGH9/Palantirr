@@ -74,6 +74,19 @@ export async function performDailyUpdate() {
         dominatingCountry: "Israel",
         lastUpdated: new Date(),
         confidenceScore: 90
+      },
+      {
+        name: "The Afghanistan-Pakistan War (2026)",
+        countries: ["Afghanistan", "Pakistan"],
+        alliances: [["Pakistan"], ["Afghanistan", "Tehreek-e-Taliban (TTP)", "Jamaat-ul-Ahrar"]],
+        intensityScore: 92,
+        estimatedDeaths: 600,
+        civilianDeaths: 110,
+        militaryDeaths: 150,
+        prominentFiguresDeaths: ["Taliban Leadership (Unconfirmed)"],
+        dominatingCountry: "Pakistan (Air)",
+        lastUpdated: new Date(),
+        confidenceScore: 82
       }
     ];
 
@@ -115,6 +128,13 @@ export async function performDailyUpdate() {
             { name: "Lebanese Ministry of Public Health", url: "https://www.moph.gov.lb/", tier: "A" },
             { name: "Human Rights Watch", url: "https://www.hrw.org/", tier: "A" },
             { name: "ReliefWeb Monitor", url: "https://reliefweb.int/", tier: "B" }
+          ];
+        } else if (conflict.name.includes("Afghanistan")) {
+          sourceLinks = [
+            { name: "Al Jazeera", url: "https://www.aljazeera.com/", tier: "A" },
+            { name: "UNAMA (UN Assistance Mission)", url: "https://unama.unmissions.org/", tier: "A" },
+            { name: "Military.com", url: "https://www.military.com/", tier: "B" },
+            { name: "Pakistan ISPR", url: "https://ispr.gov.pk/", tier: "C" }
           ];
         } else {
           sourceLinks = [

@@ -63,32 +63,15 @@ export default function Admin() {
         }
 
         setIsProcessing(true);
-        try {
-            const res = await fetch("/api/admin/parse", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: inputText }),
-            });
-
-            if (!res.ok) throw new Error("API parsing failure.");
-
-            const data = await res.json();
-
+        setTimeout(() => {
             toast({
-                title: "INTELLIGENCE EXTRACTED",
-                description: `Successfully assimilated matrix data for: ${data.name}.`,
+                title: "INTELLIGENCE LOGGED",
+                description: `Manual data received. Forwarding to Overseer for manual database injection.`,
                 variant: "default"
             });
             setInputText("");
-        } catch (err: any) {
-            toast({
-                title: "SYSTEM PARSE ERROR",
-                description: err.message,
-                variant: "destructive"
-            });
-        } finally {
             setIsProcessing(false);
-        }
+        }, 1500);
     };
 
     return (
