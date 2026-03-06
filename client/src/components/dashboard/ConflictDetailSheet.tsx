@@ -83,7 +83,7 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
                   <div className="space-y-4">
                     <div className="tactical-border p-4 bg-background">
                       <h4 className="text-xs font-mono text-primary uppercase mb-2 flex items-center gap-2">
-                        <Info className="w-4 h-4" /> Conflict Overview
+                        <Info className="w-4 h-4" /> Conflict Overview: <span className="text-foreground font-bold tracking-wide">{conflict.name}</span>
                       </h4>
                       <div className="grid grid-cols-2 gap-4 mt-4">
                         <div>
@@ -110,19 +110,19 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
 
                     {/* ALLIANCES & BELLIGERENTS */}
                     <div className="tactical-border p-4 bg-background">
-                      <h4 className="text-xs font-mono text-primary uppercase mb-3 flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4" /> Known Alliances & Coalitions
+                      <h4 className="text-sm font-display text-primary uppercase mb-4 flex items-center gap-2 font-bold tracking-wide border-b border-primary/20 pb-2">
+                        <ShieldCheck className="w-5 h-5" /> Known Alliances & Coalitions
                       </h4>
                       {conflict.alliances && conflict.alliances.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           {conflict.alliances.map((allianceGroup: string[], idx: number) => (
-                            <div key={idx} className="bg-secondary/20 border border-border p-3 rounded-sm">
-                              <p className="text-[10px] uppercase font-mono text-muted-foreground mb-2 pb-1 border-b border-border">
+                            <div key={idx} className="bg-background border border-primary/30 p-4 rounded-md shadow-inner">
+                              <p className="text-xs uppercase font-mono text-primary/80 mb-3 pb-2 border-b border-primary/20 font-bold tracking-widest">
                                 Coalition {idx + 1}
                               </p>
-                              <div className="flex flex-wrap gap-2">
+                              <div className="flex flex-wrap gap-2.5">
                                 {allianceGroup.map(nation => (
-                                  <Badge key={nation} variant="outline" className="font-mono text-[10px] bg-primary/5 border-primary/30 text-primary-foreground font-bold tracking-wide">
+                                  <Badge key={nation} variant="outline" className="font-mono text-[11px] bg-primary/10 border-primary/50 text-foreground font-semibold tracking-wide px-2.5 py-1">
                                     {nation}
                                   </Badge>
                                 ))}
@@ -263,7 +263,7 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="text-xs font-mono text-muted-foreground uppercase mb-2">Primary Sources</h4>
+                    <h4 className="text-xs font-mono text-muted-foreground uppercase mb-2">Primary Sources for <span className="text-primary font-bold">{conflict.name}</span></h4>
                     {conflict.sources && conflict.sources.length > 0 ? (
                       conflict.sources.map((source) => (
                         <div key={source.id} className="flex flex-col bg-background border border-border p-3 rounded-sm hover:border-primary/50 transition-colors">
