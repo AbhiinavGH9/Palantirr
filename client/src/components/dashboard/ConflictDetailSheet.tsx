@@ -44,27 +44,39 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
             <div className="p-6 border-b border-border bg-background/50 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
               <SheetHeader>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="outline" className={`font-mono rounded-sm text-[10px] ${getIntensityColor(conflict.intensityScore)}`}>
+                <div className="flex items-center gap-3 mb-4">
+                  <Badge variant="outline" className={`font-mono rounded-sm px-2.5 py-1 text-[10px] tracking-widest font-bold uppercase ${getIntensityColor(conflict.intensityScore)}`}>
                     INTENSITY: {conflict.intensityScore}/100
                   </Badge>
-                  <Badge variant="outline" className={`font-mono rounded-sm text-[10px] ${getConfidenceColor(conflict.confidenceScore)} flex items-center gap-1`}>
-                    {conflict.confidenceScore < 50 ? <AlertTriangle className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3" />}
+                  <Badge variant="outline" className={`font-mono rounded-sm px-2.5 py-1 text-[10px] tracking-widest font-bold uppercase ${getConfidenceColor(conflict.confidenceScore)} flex items-center gap-1.5`}>
+                    {conflict.confidenceScore < 50 ? <AlertTriangle className="w-3.5 h-3.5 text-current" /> : <ShieldCheck className="w-3.5 h-3.5 text-current" />}
                     CONFIDENCE: {conflict.confidenceScore}%
                   </Badge>
                 </div>
-                <SheetTitle className="text-3xl font-display text-foreground tracking-wide">
+
+                <SheetTitle className="text-2xl sm:text-[1.75rem] font-display font-bold text-foreground tracking-wider uppercase leading-snug mt-2 text-left break-words">
                   {conflict.name}
                 </SheetTitle>
-                <SheetDescription className="flex items-center gap-4 font-mono text-xs text-muted-foreground mt-2">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-primary" />
-                    {conflict.countries.join(", ")}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-primary" />
-                    Updated: {conflict.lastUpdated ? format(new Date(conflict.lastUpdated), "yyyy-MM-dd HH:mm") : 'N/A'}
-                  </span>
+
+                <SheetDescription asChild>
+                  <div className="flex justify-between items-start gap-4 mt-4 pt-4 border-t border-primary/20 font-mono text-[11px] sm:text-xs text-muted-foreground text-left">
+                    <div className="flex items-start gap-2 flex-1 pr-2">
+                      <MapPin className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                      <div className="leading-loose tracking-wide break-words">
+                        {conflict.countries.join(", ")}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end whitespace-nowrap pl-4 border-l border-primary/20">
+                      <span className="mb-1 opacity-80">Updated:</span>
+                      <span className="flex items-center gap-1.5 text-primary/70 font-mono">
+                        <Clock className="w-3 h-3 shrink-0" />
+                        <span className="leading-tight text-right w-20">
+                          {conflict.lastUpdated ? format(new Date(conflict.lastUpdated), "yyyy-MM-dd HH:mm").replace(" ", "\n") : 'N/A'}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
                 </SheetDescription>
               </SheetHeader>
             </div>
