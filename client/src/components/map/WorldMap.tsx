@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
-import { 
-  ComposableMap, 
-  Geographies, 
-  Geography, 
-  ZoomableGroup 
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  ZoomableGroup
 } from "react-simple-maps";
 import { useConflicts } from "@/hooks/use-conflicts";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -42,19 +42,34 @@ export function WorldMap({ onSelectConflict }: WorldMapProps) {
 
   const getFillColor = (countryName: string, isHovered: boolean) => {
     const conflictData = countryConflictMap.get(countryName);
-    
+
     // Base tactical map colors
     if (!conflictData) {
       return isHovered ? "#1e293b" : "#0f172a"; // Lighter slate on hover, dark slate base
     }
 
-    const { intensity } = conflictData;
-    
-    // Tactical threat colors
-    if (intensity >= 80) return isHovered ? "#b91c1c" : "#991b1b"; // Dark Red
-    if (intensity >= 50) return isHovered ? "#f87171" : "#ef4444"; // Red
-    if (intensity >= 20) return isHovered ? "#fb923c" : "#f97316"; // Orange
-    return isHovered ? "#facc15" : "#eab308"; // Yellow
+    const { name, intensity } = conflictData;
+
+    // Hash the conflict name to produce a distinct, unique hue/lightness for this specific conflict
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const seed = Math.abs(hash);
+
+    if (intensity >= 50) {
+      // Live Wars: Shades of Red (Hue: 0-15 or 345-360)
+      const h = seed % 15 > 7 ? seed % 15 : 360 - (seed % 15);
+      const s = 70 + (seed % 20); // 70-90% saturation
+      const l = isHovered ? (50 + (seed % 10)) : (35 + (seed % 15)); // Hover: 50-60% lightness, Base: 35-50% lightness
+      return `hsl(${h}, ${s}%, ${l}%)`;
+    } else {
+      // Potential Wars: Shades of Yellow (Hue: 45-60)
+      const h = 45 + (seed % 15);
+      const s = 80 + (seed % 20); // 80-100% saturation
+      const l = isHovered ? (60 + (seed % 10)) : (45 + (seed % 15)); // Hover: 60-70% lightness, Base: 45-60% lightness
+      return `hsl(${h}, ${s}%, ${l}%)`;
+    }
   };
 
   if (isLoading) {
@@ -69,7 +84,7 @@ export function WorldMap({ onSelectConflict }: WorldMapProps) {
   }
 
   return (
-    <div className="w-full h-full relative bg-background overflow-hidden cursor-crosshair">
+    <div className="w-full h-full relative bg-background overflow-hidden cursor-grab active:cursor-grabbing">
       {/* Dynamic Background Grid */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
         <svg width="100%" height="100%">
@@ -82,19 +97,15 @@ export function WorldMap({ onSelectConflict }: WorldMapProps) {
         </svg>
       </div>
 
-      <ComposableMap 
+      <ComposableMap
         projectionConfig={{ scale: 160 }}
         className="w-full h-full"
       >
-        <ZoomableGroup 
-          center={[0, 20]} 
+        <ZoomableGroup
+          center={[0, 20]}
           zoom={1}
           maxZoom={10}
           minZoom={1}
-          filterZoomEvent={(evt: any) => {
-            // Standard scroll zoom filter
-            return evt.type === "wheel" ? true : false;
-          }}
         >
           <Geographies geography={geoUrl}>
             {({ geographies }) =>

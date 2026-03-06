@@ -62,9 +62,14 @@ app.use((req, res, next) => {
 
 (async () => {
   await registerRoutes(httpServer, app);
-  
+
   // Start the cron jobs
   setupCronJobs();
+
+  // Scrape immediately on startup to ensure we have live 2026 data
+  import("./scraper").then((module) => {
+    module.performDailyUpdate().catch(console.error);
+  });
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -98,7 +103,6 @@ app.use((req, res, next) => {
     {
       port,
       host: "0.0.0.0",
-      reusePort: true,
     },
     () => {
       log(`serving on port ${port}`);

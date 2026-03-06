@@ -1,9 +1,9 @@
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarHeader, 
-  SidebarGroup, 
-  SidebarGroupContent, 
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarGroup,
+  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
@@ -30,20 +30,26 @@ export function AppSidebar({ onSelectConflict }: AppSidebarProps) {
     <Sidebar className="border-r border-border bg-card/95 backdrop-blur">
       <SidebarHeader className="border-b border-border p-4">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-sm bg-primary/20 border border-primary/50 flex items-center justify-center">
-            <Globe className="h-5 w-5 text-primary" />
+          <div className="h-8 w-8 rounded-sm overflow-hidden border border-primary/50 flex items-center justify-center bg-black/50">
+            <img src="/favicon.png" alt="Palantir" className="w-full h-full object-cover" />
           </div>
           <div>
             <h1 className="text-xl font-display font-bold text-primary text-shadow-neon tracking-widest leading-none">
-              OBSERVATORY
+              PALANTIR
             </h1>
             <p className="text-[10px] text-primary/70 font-mono tracking-widest uppercase">Global Threat Matrix</p>
           </div>
         </div>
       </SidebarHeader>
-      
+
+      <div className="px-4 py-2 border-b border-border">
+        <a href="/admin" className="flex items-center justify-center gap-2 w-full text-xs font-mono font-bold tracking-widest uppercase bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20 hover:text-red-400 p-2 rounded-sm transition-all shadow-[0_0_10px_rgba(255,0,0,0.1)]">
+          <ShieldAlert className="w-3 h-3" /> Admin Overseer
+        </a>
+      </div>
+
       <SidebarContent className="p-4 gap-6">
-        
+
         {/* SUMMARY STATS */}
         <SidebarGroup className="p-0">
           <SidebarGroupLabel className="text-muted-foreground font-mono text-xs uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -67,8 +73,8 @@ export function AppSidebar({ onSelectConflict }: AppSidebarProps) {
                   <Skeleton className="h-8 w-16 bg-primary/20" />
                 ) : (
                   <span className="text-xl font-mono font-bold text-orange-400 leading-none">
-                    {summary?.totalEstimatedCasualties ? 
-                      new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(summary.totalEstimatedCasualties) 
+                    {summary?.totalEstimatedCasualties ?
+                      new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(summary.totalEstimatedCasualties)
                       : 0}
                   </span>
                 )}
@@ -88,7 +94,7 @@ export function AppSidebar({ onSelectConflict }: AppSidebarProps) {
                   <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive font-mono rounded-none">
                     INT: {summary.mostIntenseConflict.intensityScore}/100
                   </Badge>
-                  <button 
+                  <button
                     onClick={() => onSelectConflict(summary.mostIntenseConflict!.id)}
                     className="text-xs font-mono text-primary hover:text-primary/80 transition-colors uppercase tracking-widest underline decoration-primary/30 underline-offset-4"
                   >
@@ -119,7 +125,7 @@ export function AppSidebar({ onSelectConflict }: AppSidebarProps) {
                   let colorClass = "text-yellow-500";
                   let borderClass = "border-yellow-500/20 hover:border-yellow-500/50";
                   let bgClass = "bg-yellow-500/5 hover:bg-yellow-500/10";
-                  
+
                   if (conflict.intensityScore >= 80) {
                     colorClass = "text-red-600";
                     borderClass = "border-red-600/20 hover:border-red-600/50";
@@ -136,7 +142,7 @@ export function AppSidebar({ onSelectConflict }: AppSidebarProps) {
 
                   return (
                     <SidebarMenuItem key={conflict.id} className="mb-2">
-                      <SidebarMenuButton 
+                      <SidebarMenuButton
                         asChild
                         onClick={() => onSelectConflict(conflict.id)}
                         className={`w-full flex flex-col items-start p-3 h-auto border rounded-sm transition-all duration-200 cursor-pointer ${bgClass} ${borderClass}`}
@@ -168,8 +174,16 @@ export function AppSidebar({ onSelectConflict }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
+
       </SidebarContent>
+
+      <div className="p-4 border-t border-border bg-black/50 text-center">
+        <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest leading-relaxed">
+          Made by Abhinav Shukla
+          <br />
+          under Shukla Technologies In India
+        </p>
+      </div>
     </Sidebar>
   );
 }

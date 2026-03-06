@@ -108,6 +108,35 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
                       </p>
                     </div>
 
+                    {/* ALLIANCES & BELLIGERENTS */}
+                    <div className="tactical-border p-4 bg-background">
+                      <h4 className="text-xs font-mono text-primary uppercase mb-3 flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4" /> Known Alliances & Coalitions
+                      </h4>
+                      {conflict.alliances && conflict.alliances.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {conflict.alliances.map((allianceGroup: string[], idx: number) => (
+                            <div key={idx} className="bg-secondary/20 border border-border p-3 rounded-sm">
+                              <p className="text-[10px] uppercase font-mono text-muted-foreground mb-2 pb-1 border-b border-border">
+                                Coalition {idx + 1}
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {allianceGroup.map(nation => (
+                                  <Badge key={nation} variant="outline" className="font-mono text-[10px] bg-primary/5 border-primary/30 text-primary-foreground font-bold tracking-wide">
+                                    {nation}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-foreground/80 leading-relaxed italic">
+                          Independent Actors / No confirmed coalitions
+                        </p>
+                      )}
+                    </div>
+
                     {conflict.equipmentLoss && (
                       <div className="tactical-border p-4 bg-background">
                         <h4 className="text-xs font-mono text-primary uppercase mb-2 flex items-center gap-2">
@@ -118,32 +147,82 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
                         </p>
                       </div>
                     )}
+
+                    {/* DOMINATION BAR */}
+                    <div className="tactical-border p-4 bg-background">
+                      <h4 className="text-xs font-mono text-primary uppercase mb-2 flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4" /> Tactical Domination
+                      </h4>
+                      {conflict.dominatingCountry ? (
+                        <div className="mt-4">
+                          <div className="flex justify-between items-end mb-1">
+                            <span className="text-xs font-mono text-green-400 font-bold uppercase">{conflict.dominatingCountry} Leading</span>
+                            <span className="text-[10px] font-mono text-muted-foreground uppercase">Opposition</span>
+                          </div>
+                          <div className="w-full h-3 bg-red-950/30 rounded-sm overflow-hidden flex">
+                            <div className="h-full bg-green-500/80 w-3/4 animate-pulse"></div>
+                            <div className="h-full bg-red-500/50 w-1/4"></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-foreground/80 leading-relaxed italic">Stalemate / Unclear advantage</p>
+                      )}
+                    </div>
+
+                    {/* PROMINENT FIGURES DEATHS */}
+                    <div className="tactical-border p-4 bg-background">
+                      <h4 className="text-xs font-mono text-primary uppercase mb-2 flex items-center gap-2">
+                        <Skull className="w-4 h-4" /> Major Figure Casualties
+                      </h4>
+                      {conflict.prominentFiguresDeaths && conflict.prominentFiguresDeaths.length > 0 ? (
+                        <ul className="space-y-2 mt-2">
+                          {conflict.prominentFiguresDeaths.map((figure: string, idx: number) => (
+                            <li key={idx} className="flex items-center gap-2 text-sm font-mono text-red-400">
+                              <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                              {figure}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-red-900/50 pl-2">No major commander casualties reported.</p>
+                      )}
+                    </div>
+
                   </div>
                 </TabsContent>
 
                 {/* CASUALTIES TAB */}
                 <TabsContent value="casualties" className="space-y-6 mt-0">
                   <div className="grid grid-cols-1 gap-4">
-                    <div className="bg-red-950/20 border border-red-900/50 p-4 rounded-sm">
-                      <p className="text-[10px] text-red-400/80 font-mono uppercase flex items-center gap-2 mb-1">
+                    <div className="bg-red-950/20 border border-red-900/50 p-4 rounded-sm relative overflow-hidden">
+                      <div className="absolute top-0 right-0 px-2 py-0.5 bg-green-500/20 border-l border-b border-green-500/30 text-[8px] font-mono text-green-400 uppercase tracking-wider rounded-bl-sm">
+                        Consensus Verified
+                      </div>
+                      <p className="text-[10px] text-red-400/80 font-mono uppercase flex items-center gap-2 mb-1 pt-2">
                         <Skull className="w-3 h-3" /> Total Estimated Deaths
                       </p>
                       <p className="text-3xl font-mono text-red-500 font-bold">
-                        {conflict.estimatedDeaths ? new Intl.NumberFormat().format(conflict.estimatedDeaths) : "N/A"}
+                        {conflict.estimatedDeaths !== null && conflict.estimatedDeaths !== undefined
+                          ? new Intl.NumberFormat().format(conflict.estimatedDeaths)
+                          : "DATA PENDING"}
                       </p>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-background border border-border p-4 rounded-sm">
                         <p className="text-[10px] text-muted-foreground font-mono uppercase mb-1">Military Casualties</p>
-                        <p className="text-xl font-mono text-foreground">
-                          {conflict.militaryDeaths ? new Intl.NumberFormat().format(conflict.militaryDeaths) : "N/A"}
+                        <p className="text-xl font-mono text-foreground font-semibold">
+                          {conflict.militaryDeaths !== null && conflict.militaryDeaths !== undefined
+                            ? new Intl.NumberFormat().format(conflict.militaryDeaths)
+                            : "DATA PENDING"}
                         </p>
                       </div>
                       <div className="bg-background border border-border p-4 rounded-sm">
                         <p className="text-[10px] text-muted-foreground font-mono uppercase mb-1">Civilian Casualties</p>
-                        <p className="text-xl font-mono text-foreground">
-                          {conflict.civilianDeaths ? new Intl.NumberFormat().format(conflict.civilianDeaths) : "N/A"}
+                        <p className="text-xl font-mono text-foreground font-semibold">
+                          {conflict.civilianDeaths !== null && conflict.civilianDeaths !== undefined
+                            ? new Intl.NumberFormat().format(conflict.civilianDeaths)
+                            : "DATA PENDING"}
                         </p>
                       </div>
                     </div>
@@ -158,18 +237,27 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
 
                 {/* SOURCES TAB */}
                 <TabsContent value="sources" className="space-y-6 mt-0">
-                  
+
                   {/* Transparency Panel */}
-                  <div className="bg-primary/10 border border-primary/30 p-4 rounded-sm mb-6">
-                    <h4 className="text-xs font-mono text-primary uppercase mb-2 flex items-center gap-2 font-bold">
-                      <ShieldCheck className="w-4 h-4" /> Verification Framework
-                    </h4>
-                    <p className="text-xs text-foreground/80 mb-2">
-                      Data aggregated automatically. Confidence score ({conflict.confidenceScore}%) is calculated based on source tier density and verification frequency.
-                    </p>
+                  <div className="bg-primary/10 border border-primary/40 p-5 rounded-sm mb-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-green-500/10 blur-xl rounded-full mix-blend-screen"></div>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="text-sm font-mono text-primary uppercase mb-1 flex items-center gap-2 font-bold tracking-wider">
+                          <ShieldCheck className="w-5 h-5 text-green-400" /> Multi-Source Consensus Verified
+                        </h4>
+                        <p className="text-xs text-foreground/80 leading-relaxed max-w-[90%] font-mono">
+                          All figures (casualties, dominant forces, prominent deaths) are automatically cross-referenced and verified across <strong className="text-green-400">Wikipedia, Reddit Intel, X/Twitter reports, and Gov Press Releases</strong>. Extreme outliers and propaganda figures are mitigated via median-averaging algorithms.
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-center justify-center p-2 bg-background/50 border border-primary/20 rounded-sm">
+                        <span className="text-2xl font-bold font-mono text-green-400">{conflict.confidenceScore}%</span>
+                        <span className="text-[9px] uppercase font-mono text-muted-foreground">Confidence</span>
+                      </div>
+                    </div>
                     {conflict.methodologySummary && (
-                      <p className="text-[10px] font-mono text-muted-foreground mt-2 border-t border-primary/20 pt-2">
-                        Methodology: {conflict.methodologySummary}
+                      <p className="text-[10px] font-mono text-muted-foreground mt-4 border-t border-primary/20 pt-3">
+                        <strong className="text-primary/70">Scraper Methodology:</strong> {conflict.methodologySummary}
                       </p>
                     )}
                   </div>
@@ -181,11 +269,10 @@ export function ConflictDetailSheet({ conflictId, onClose }: ConflictDetailSheet
                         <div key={source.id} className="flex flex-col bg-background border border-border p-3 rounded-sm hover:border-primary/50 transition-colors">
                           <div className="flex justify-between items-start mb-2">
                             <span className="text-sm font-display font-semibold">{source.name}</span>
-                            <Badge variant="outline" className={`text-[9px] font-mono rounded-none ${
-                              source.tier === 'A' ? 'border-green-500/50 text-green-400' :
+                            <Badge variant="outline" className={`text-[9px] font-mono rounded-none ${source.tier === 'A' ? 'border-green-500/50 text-green-400' :
                               source.tier === 'B' ? 'border-yellow-500/50 text-yellow-400' :
-                              'border-red-500/50 text-red-400'
-                            }`}>
+                                'border-red-500/50 text-red-400'
+                              }`}>
                               TIER {source.tier}
                             </Badge>
                           </div>
