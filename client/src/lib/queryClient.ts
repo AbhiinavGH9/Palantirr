@@ -12,7 +12,10 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  const backendUrl = import.meta.env.PROD ? "https://palantir-api-nn4m.onrender.com" : "";
+  const fullUrl = url.startsWith("http") ? url : `${backendUrl}${url}`;
+
+  const res = await fetch(fullUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -29,7 +32,11 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
     async ({ queryKey }) => {
-      const res = await fetch(queryKey.join("/") as string, {
+      const urlString = queryKey.join("/");
+      const backendUrl = import.meta.env.PROD ? "https://palantir-api-nn4m.onrender.com" : "";
+      const fullUrl = urlString.startsWith("http") ? urlString : `${backendUrl}${urlString.startsWith('/') ? '' : '/'}${urlString}`;
+
+      const res = await fetch(fullUrl, {
         credentials: "omit", // Omit credentials to avoid CORS preflight failures on free APIs
       });
 
