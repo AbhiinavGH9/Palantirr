@@ -3,8 +3,14 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { setupCronJobs } from "./scraper";
+import cors from "cors";
 
+// Enable CORS for all routes
 const app = express();
+app.use(cors({
+  origin: true, // Allow all origins (like Vercel production URLs)
+  credentials: true, // Required for cookies, authorization headers with HTTPS
+}));
 const httpServer = createServer(app);
 
 declare module "http" {
